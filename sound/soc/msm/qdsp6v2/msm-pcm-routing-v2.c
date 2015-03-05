@@ -1587,7 +1587,7 @@ static const char *const ec_ref_rx[] = { "None", "SLIM_RX", "I2S_RX",
 	"TERT_MI2S_TX", "QUAT_MI2S_TX", "SEC_I2S_RX", "SLIM_5_RX",
 	"PROXY_RX"};
 static const struct soc_enum msm_route_ec_ref_rx_enum[] = {
-	SOC_ENUM_SINGLE_EXT(10, ec_ref_rx),
+	SOC_ENUM_SINGLE_EXT(ARRAY_SIZE(ec_ref_rx), ec_ref_rx),
 };
 
 static const struct snd_kcontrol_new ext_ec_ref_mux_ul1 =
@@ -4604,6 +4604,25 @@ static const struct snd_soc_dapm_route intercon[] = {
 	{"SLIMBUS_5_RX Audio Mixer", "MultiMedia14", "MM_DL14"},
 	{"SLIMBUS_5_RX Audio Mixer", "MultiMedia15", "MM_DL15"},
 	{"SLIMBUS_5_RX Audio Mixer", "MultiMedia16", "MM_DL16"},
+	{"SLIMBUS_5_RX", NULL, "SLIMBUS_5_RX Audio Mixer"},
+
+	{"SLIMBUS_5_RX Audio Mixer", "MultiMedia1", "MM_DL1"},
+	{"SLIMBUS_5_RX Audio Mixer", "MultiMedia2", "MM_DL2"},
+	{"SLIMBUS_5_RX Audio Mixer", "MultiMedia3", "MM_DL3"},
+	{"SLIMBUS_5_RX Audio Mixer", "MultiMedia4", "MM_DL4"},
+	{"SLIMBUS_5_RX Audio Mixer", "MultiMedia5", "MM_DL5"},
+	{"SLIMBUS_5_RX Audio Mixer", "MultiMedia6", "MM_DL6"},
+	{"SLIMBUS_5_RX Audio Mixer", "MultiMedia7", "MM_DL7"},
+	{"SLIMBUS_5_RX Audio Mixer", "MultiMedia8", "MM_DL8"},
+	{"SLIMBUS_5_RX Audio Mixer", "MultiMedia9", "MM_DL9"},
+	{"SLIMBUS_5_RX Audio Mixer", "MultiMedia10", "MM_DL10"},
+	{"SLIMBUS_5_RX Audio Mixer", "MultiMedia11", "MM_DL11"},
+	{"SLIMBUS_5_RX Audio Mixer", "MultiMedia12", "MM_DL12"},
+	{"SLIMBUS_5_RX Audio Mixer", "MultiMedia13", "MM_DL13"},
+	{"SLIMBUS_5_RX Audio Mixer", "MultiMedia14", "MM_DL14"},
+	{"SLIMBUS_5_RX Audio Mixer", "MultiMedia15", "MM_DL15"},
+	{"SLIMBUS_5_RX Audio Mixer", "MultiMedia16", "MM_DL16"},
+	{"SLIMBUS_5_RX Audio Mixer", "MultiMedia17", "MM_DL17"},
 	{"SLIMBUS_5_RX", NULL, "SLIMBUS_5_RX Audio Mixer"},
 
 	{"HDMI Mixer", "MultiMedia1", "MM_DL1"},
