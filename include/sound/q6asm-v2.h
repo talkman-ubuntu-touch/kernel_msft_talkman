@@ -49,6 +49,9 @@
 #define FORMAT_FLAC         0x0016
 #define FORMAT_G711_ALAW_FS 0x0017
 #define FORMAT_G711_MLAW_FS 0x0018
+#define FORMAT_ALAC         0x0019
+#define FORMAT_VORBIS       0x001a
+#define FORMAT_APE          0x001b
 
 #define ENCDEC_SBCBITRATE   0x0001
 #define ENCDEC_IMMEDIATE_DECODE 0x0002
@@ -452,6 +455,15 @@ int q6asm_media_format_block_amrwbplus(struct audio_client *ac,
 
 int q6asm_stream_media_format_block_flac(struct audio_client *ac,
 			struct asm_flac_cfg *cfg, int stream_id);
+
+int q6asm_media_format_block_alac(struct audio_client *ac,
+			struct asm_alac_cfg *cfg, int stream_id);
+
+int q6asm_stream_media_format_block_vorbis(struct audio_client *ac,
+			struct asm_vorbis_cfg *cfg, int stream_id);
+
+int q6asm_media_format_block_ape(struct audio_client *ac,
+			struct asm_ape_cfg *cfg, int stream_id);
 
 int q6asm_ds1_set_endp_params(struct audio_client *ac,
 				int param_id, int param_value);
