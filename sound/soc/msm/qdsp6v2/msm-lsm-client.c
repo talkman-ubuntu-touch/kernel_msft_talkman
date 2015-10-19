@@ -1725,6 +1725,13 @@ static int msm_lsm_close(struct snd_pcm_substream *substream)
 	rtd = substream->private_data;
 
 	dev_dbg(rtd->dev, "%s\n", __func__);
+
+	if (!prtd || !prtd->lsm_client) {
+		pr_err("%s: No LSM session active\n", __func__);
+		return -EINVAL;
+	}
+
+	pr_debug("%s\n", __func__);
 	if (prtd->lsm_client->started) {
 		ret = q6lsm_stop(prtd->lsm_client, true);
 		if (ret)
