@@ -1,4 +1,4 @@
-/* Copyright (c) 2014-2015, The Linux Foundation. All rights reserved.
+/* Copyright (c) 2014-2016, The Linux Foundation. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 and
@@ -225,6 +225,8 @@ cpe_is_command_valid(const struct cpe_info *t_info,
 static enum cpe_svc_result __cpe_svc_shutdown(void *cpe_handle);
 static void *cdc_priv;
 
+static enum cpe_svc_result __cpe_svc_shutdown(void *cpe_handle);
+
 static int cpe_register_read(u32 reg, u8 *val)
 {
 	*(val) = snd_soc_read(cdc_priv, reg);
@@ -279,6 +281,7 @@ static bool cpe_register_read_autoinc_supported(void)
 	return true;
 }
 
+/* Called under msgq locked context */
 static void cpe_cmd_received(struct cpe_info *t_info)
 {
 	struct cpe_command_node *node = NULL;
@@ -316,6 +319,7 @@ static int cpe_worker_thread(void *context)
 			 __func__);
 
 	while (!kthread_should_stop()) {
+		CPE_SVC_GRAB_LOCK(&t_info->msg_lock, "msg_lock");
 		wait_for_completion(&t_info->cmd_complete);
 
 		CPE_SVC_GRAB_LOCK(&t_info->msg_lock, "msg_lock");
@@ -345,12 +349,14 @@ static void cpe_create_worker_thread(struct cpe_info *t_info)
 	t_info->stop_thread = false;
 	t_info->thread_handler = kthread_run(cpe_worker_thread,
 		(void *)t_info, "cpe-worker-thread");
+	pr_debug("%s: Created new worker thread\n",
+		 __func__);
 }
 
 static void cpe_cleanup_worker_thread(struct cpe_info *t_info)
 {
 	if (!t_info->thread_handler) {
-		pr_err("%s: thread not create\n", __func__);
+		pr_err("%s: thread not created\n", __func__);
 		return;
 	}
 
@@ -1155,6 +1161,7 @@ enum cpe_svc_result cpe_svc_deinitialize(void *cpe_handle)
 		cpe_default_handle = NULL;
 
 	t_info->tgt->tgt_deinit(t_info->tgt);
+	mutex_destroy(&t_info->msg_lock);
 	kfree(t_info->tgt);
 	kfree(t_info);
 	mutex_destroy(&cpe_api_mutex);
@@ -1364,9 +1371,11 @@ static enum cpe_svc_result __cpe_svc_shutdown(void *cpe_handle)
 enum cpe_svc_result cpe_svc_shutdown(void *cpe_handle)
 {
 	enum cpe_svc_result rc = CPE_SVC_SUCCESS;
+
 	CPE_SVC_GRAB_LOCK(&cpe_api_mutex, "cpe_api");
 	rc = __cpe_svc_shutdown(cpe_handle);
 	CPE_SVC_REL_LOCK(&cpe_api_mutex, "cpe_api");
+
 	return rc;
 }
 

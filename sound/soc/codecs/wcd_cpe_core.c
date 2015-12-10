@@ -1,4 +1,4 @@
-/* Copyright (c) 2014-2015, 2018 The Linux Foundation. All rights reserved.
+/* Copyright (c) 2014-2016, The Linux Foundation. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 and
@@ -730,7 +730,7 @@ static int wcd_cpe_enable(struct wcd_cpe_core *core,
 		ret = cpe_svc_reset(core->cpe_handle);
 		if (IS_ERR_VALUE(ret)) {
 			dev_err(core->dev,
-				"%s: Failed to reset CPE with error %d\n",
+				"%s: CPE Reset failed, error = %d\n",
 				__func__, ret);
 			goto done;
 		}
@@ -1262,7 +1262,6 @@ static void wcd_cpe_svc_event_cb(const struct cpe_svc_notification *param)
 		complete(&core->online_compl);
 		break;
 	case CPE_SVC_OFFLINE:
-
 		/*
 		 * offline can happen during normal shutdown,
 		 * but we are interested in offline only during
