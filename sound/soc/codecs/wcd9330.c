@@ -109,7 +109,7 @@ enum {
 #define SLIM_BW_CLK_GEAR_9 12400000
 #define SLIM_BW_UNVOTE 0
 
-int g_DebugMode = 1;
+int g_DebugMode = 0;
 struct switch_dev *g_audiowizard_force_preset_sdev = NULL;
 static int cpe_debug_mode;
 module_param(cpe_debug_mode, int,
