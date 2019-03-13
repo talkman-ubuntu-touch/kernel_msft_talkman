@@ -3,12 +3,7 @@
 #
 # Copyright (c) 2019, Laster K. (lazerl0rd). All rights reserved.
 
-# Exports
-export ARCH=arm64
-export SUBARCH=arm
-if [ -z "${CROSS_COMPILE+x}" ]; then
-  export CROSS_COMPILE=~/android/platform/prebuilts/gcc/linux-x86/aarch64/aarch64-linux-android-4.9/bin/aarch64-linux-android-
-fi
+# Additions
 
 # Prepare
 rm -rf out/
@@ -17,5 +12,7 @@ rm -rf ~/zestkernel-bullhead.log
 
 # Build
 clear
-make zest_defconfig
-make -j$(nproc) | tee -a ~/zestkernel-bullhead.log
+make ARCH=arm64 zest_defconfig
+make -j$(nproc) ARCH=arm64 \
+                SUBARCH=arm \
+                CROSS_COMPILE=aarch64_be-linux-gnu- | tee -a ~/zestkernel-maple.log
