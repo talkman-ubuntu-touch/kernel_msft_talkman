@@ -957,6 +957,7 @@ CDEFINES :=	-DANI_LITTLE_BYTE_ENDIAN \
 		-Werror\
 		-Wno-packed-not-aligned\
 		-Wno-stringop-overflow\
+		-Wno-array-bounds\
 		-D__linux__ \
 		-DHAL_SELF_STA_PER_BSS=1 \
 		-DWLAN_FEATURE_VOWIFI_11R \
