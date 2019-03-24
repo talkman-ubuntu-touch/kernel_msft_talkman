@@ -1760,7 +1760,6 @@
 		qcom,cpu-dma-latency-us = <301 70>;
 		qcom,cpu-affinity = "affine_cores";
 		qcom,cpu-affinity-mask = <0x0f 0xf0>;
-		qcom,wakeup-on-idle;
 
 		qcom,msm-bus,name = "sdhc1";
 		qcom,msm-bus,num-cases = <9>;
@@ -1800,7 +1799,6 @@
 		qcom,cpu-dma-latency-us = <301 70>;
 		qcom,cpu-affinity = "affine_cores";
 		qcom,cpu-affinity-mask = <0x0f 0xf0>;
-		qcom,wakeup-on-idle;
 
 		qcom,msm-bus,name = "sdhc2";
 		qcom,msm-bus,num-cases = <8>;
@@ -2725,13 +2723,13 @@
 		compatible = "qcom,bcl";
 		qcom,bcl-enable;
 		qcom,bcl-framework-interface;
-		qcom,bcl-hotplug-list = <&CPU4 &CPU5>;
+		/delete-property/ qcom,bcl-hotplug-list;
+		/delete-property/ qcom,bcl-soc-hotplug-list;
 		qcom,bcl-freq-control-list = <&CPU4 &CPU5>;
-		qcom,bcl-soc-hotplug-list = <&CPU4 &CPU5>;
 		qcom,ibat-monitor {
 			qcom,low-threshold-uamp = <3400000>;
 			qcom,high-threshold-uamp = <4200000>;
-			qcom,mitigation-freq-khz = <768000>;
+			qcom,mitigation-freq-khz = <960000>;
 			qcom,vph-high-threshold-uv = <3500000>;
 			qcom,vph-low-threshold-uv = <3300000>;
 			qcom,soc-low-threshold = <10>;

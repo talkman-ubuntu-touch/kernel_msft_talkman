@@ -412,7 +412,6 @@ void adreno_cp_callback(struct adreno_device *adreno_dev, int bit)
 {
 	struct kgsl_device *device = &adreno_dev->dev;
 
-	queue_work(device->work_queue, &device->event_work);
 	adreno_dispatcher_schedule(device);
 }
 
@@ -764,6 +763,9 @@ static int adreno_of_get_pdata(struct platform_device *pdev)
 
 	pdata->bus_control = of_property_read_bool(pdev->dev.of_node,
 						"qcom,bus-control");
+
+	pdata->popp_enable = of_property_read_bool(pdev->dev.of_node,
+						"qcom,popp-enable");
 
 	if (adreno_of_read_property(pdev->dev.of_node, "qcom,clk-map",
 		&pdata->clk_map))

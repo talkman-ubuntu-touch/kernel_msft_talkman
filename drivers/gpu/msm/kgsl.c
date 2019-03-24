@@ -4779,8 +4779,8 @@ int kgsl_device_platform_probe(struct kgsl_device *device)
 				PM_QOS_CPU_DMA_LATENCY,
 				PM_QOS_DEFAULT_VALUE);
 
-
-	device->events_wq = create_workqueue("kgsl-events");
+	device->events_wq = alloc_workqueue("kgsl-events",
+		WQ_UNBOUND | WQ_MEM_RECLAIM, 0);
 
 	/* Initalize the snapshot engine */
 	kgsl_device_snapshot_init(device);
@@ -4866,7 +4866,7 @@ static void kgsl_core_exit(void)
 static int __init kgsl_core_init(void)
 {
 	int result = 0;
-	struct sched_param param = { .sched_priority = 2 };
+	struct sched_param param = { .sched_priority = 16 };
 
 	/* alloc major and minor device numbers */
 	result = alloc_chrdev_region(&kgsl_driver.major, 0, KGSL_DEVICE_MAX,

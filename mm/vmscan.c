@@ -513,18 +513,6 @@ static pageout_t pageout(struct page *page, struct address_space *mapping,
 		if (!PageWriteback(page)) {
 			/* synchronous write or broken a_ops? */
 			ClearPageReclaim(page);
-			if (PageError(page) && PageSwapCache(page)) {
-				ClearPageError(page);
-				/*
-				 * We lock the page here because it is required
-				 * to free the swp space later in
-				 * shrink_page_list. But the page may be
-				 * unclocked by functions like
-				 * handle_write_error.
-				 */
-				__set_page_locked(page);
-				return PAGE_ACTIVATE;
-			}
 		}
 		trace_mm_vmscan_writepage(page, trace_reclaim_flags(page));
 		inc_zone_page_state(page, NR_VMSCAN_WRITE);
@@ -1111,7 +1099,7 @@ cull_mlocked:
 
 activate_locked:
 		/* Not a candidate for swapping, so reclaim swap space. */
-		if (PageSwapCache(page) && vm_swap_full())
+		if (PageSwapCache(page) && vm_swap_full(page_swap_info(page)))
 			try_to_free_swap(page);
 		VM_BUG_ON(PageActive(page));
 		SetPageActive(page);

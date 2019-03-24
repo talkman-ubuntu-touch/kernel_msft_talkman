@@ -448,7 +448,7 @@ static struct ctl_table kern_table[] = {
 		.data		= &sysctl_sched_enable_power_aware,
 		.maxlen		= sizeof(unsigned int),
 		.mode		= 0644,
-		.proc_handler	= proc_dointvec_minmax,
+		.proc_handler	= sched_enable_power_aware_handler,
 		.extra1		= &zero,
 		.extra2		= &one,
 	},
@@ -480,6 +480,20 @@ static struct ctl_table kern_table[] = {
 		.proc_handler	= sched_proc_update_handler,
 		.extra1		= &min_wakeup_granularity_ns,
 		.extra2		= &max_wakeup_granularity_ns,
+	},
+	{
+		.procname	= "sched_yield_sleep_threshold",
+		.data		= &sysctl_sched_yield_sleep_threshold,
+		.maxlen		= sizeof(int),
+		.mode		= 0644,
+		.proc_handler	= proc_dointvec,
+	},
+	{
+		.procname	= "sched_yield_sleep_duration",
+		.data		= &sysctl_sched_yield_sleep_duration,
+		.maxlen		= sizeof(unsigned int),
+		.mode		= 0644,
+		.proc_handler	= proc_dointvec,
 	},
 #ifdef CONFIG_SMP
 	{
@@ -1366,6 +1380,14 @@ static struct ctl_table vm_table[] = {
 		.maxlen		= sizeof(dirty_expire_interval),
 		.mode		= 0644,
 		.proc_handler	= proc_dointvec_minmax,
+		.extra1		= &zero,
+	},
+	{
+		.procname	= "dirtytime_expire_seconds",
+		.data		= &dirtytime_expire_interval,
+		.maxlen		= sizeof(dirty_expire_interval),
+		.mode		= 0644,
+		.proc_handler	= dirtytime_interval_handler,
 		.extra1		= &zero,
 	},
 	{

@@ -47,6 +47,8 @@ struct cred;
 struct swap_info_struct;
 struct seq_file;
 struct workqueue_struct;
+struct fscrypt_info;
+struct fscrypt_operations;
 
 extern void __init inode_init(void);
 extern void __init inode_init_early(void);
@@ -578,6 +580,7 @@ struct inode {
 	struct mutex		i_mutex;
 
 	unsigned long		dirtied_when;	/* jiffies of first dirtying */
+	unsigned long		dirtied_time_when;
 
 	struct hlist_node	i_hash;
 	struct list_head	i_wb_list;	/* backing dev IO list */
@@ -614,6 +617,11 @@ struct inode {
 #ifdef CONFIG_IMA
 	atomic_t		i_readcount; /* struct files open RO */
 #endif
+
+#if IS_ENABLED(CONFIG_FS_ENCRYPTION)
+	struct fscrypt_info	*i_crypt_info;
+#endif
+
 	void			*i_private; /* fs or device private pointer */
 };
 
@@ -1262,6 +1270,9 @@ struct super_block {
 	const struct xattr_handler **s_xattr;
 
 	struct list_head	s_inodes;	/* all inodes */
+
+	const struct fscrypt_operations	*s_cop;
+
 	struct hlist_bl_head	s_anon;		/* anonymous dentries for (nfs) exporting */
 	struct list_head	s_mounts;	/* list of mounts; _not_ for fs use */
 	/* s_dentry_lru, s_nr_dentry_unused protected by dcache.c lru locks */
@@ -1771,8 +1782,12 @@ struct super_operations {
 #define I_REFERENCED		(1 << 8)
 #define __I_DIO_WAKEUP		9
 #define I_DIO_WAKEUP		(1 << I_DIO_WAKEUP)
+#define I_DIRTY_TIME		(1 << 11)
+#define __I_DIRTY_TIME_EXPIRED	12
+#define I_DIRTY_TIME_EXPIRED	(1 << __I_DIRTY_TIME_EXPIRED)
 
 #define I_DIRTY (I_DIRTY_SYNC | I_DIRTY_DATASYNC | I_DIRTY_PAGES)
+#define I_DIRTY_ALL (I_DIRTY | I_DIRTY_TIME)
 
 extern void __mark_inode_dirty(struct inode *, int);
 static inline void mark_inode_dirty(struct inode *inode)
@@ -1922,6 +1937,8 @@ extern int thaw_super(struct super_block *super);
 extern bool our_mnt(struct vfsmount *mnt);
 
 extern int current_umask(void);
+
+extern int generic_update_time(struct inode *, struct timespec *, int);
 
 /* /sys/fs */
 extern struct kobject *fs_kobj;
@@ -2096,6 +2113,7 @@ extern struct super_block *freeze_bdev(struct block_device *);
 extern void emergency_thaw_all(void);
 extern int thaw_bdev(struct block_device *bdev, struct super_block *sb);
 extern int fsync_bdev(struct block_device *);
+extern int sb_is_blkdev_sb(struct super_block *sb);
 #else
 static inline void bd_forget(struct inode *inode) {}
 static inline int sync_blockdev(struct block_device *bdev) { return 0; }
@@ -2114,6 +2132,11 @@ static inline int thaw_bdev(struct block_device *bdev, struct super_block *sb)
 
 static inline void iterate_bdevs(void (*f)(struct block_device *, void *), void *arg)
 {
+}
+
+static inline int sb_is_blkdev_sb(struct super_block *sb)
+{
+	return 0;
 }
 #endif
 extern int sync_filesystem(struct super_block *);
@@ -2376,6 +2399,11 @@ extern struct inode *ilookup(struct super_block *sb, unsigned long ino);
 
 extern struct inode * iget5_locked(struct super_block *, unsigned long, int (*test)(struct inode *, void *), int (*set)(struct inode *, void *), void *);
 extern struct inode * iget_locked(struct super_block *, unsigned long);
+extern struct inode *find_inode_nowait(struct super_block *,
+				       unsigned long,
+				       int (*match)(struct inode *,
+						    unsigned long, void *),
+				       void *data);
 extern int insert_inode_locked4(struct inode *, unsigned long, int (*test)(struct inode *, void *), void *);
 extern int insert_inode_locked(struct inode *);
 #ifdef CONFIG_DEBUG_LOCK_ALLOC

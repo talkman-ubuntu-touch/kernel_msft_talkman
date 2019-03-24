@@ -269,7 +269,8 @@ static int __ref bcl_cpu_ctrl_callback(struct notifier_block *nfb,
 {
 	uint32_t cpu = (uintptr_t)hcpu;
 
-	if (action == CPU_UP_PREPARE || action == CPU_UP_PREPARE_FROZEN) {
+	switch (action & ~CPU_TASKS_FROZEN) {
+	case CPU_UP_PREPARE:
 		if (!cpumask_test_and_set_cpu(cpu, bcl_cpu_online_mask))
 			pr_debug("BCL online Mask: %u\n",
 				cpumask_weight(bcl_cpu_online_mask));
@@ -279,6 +280,15 @@ static int __ref bcl_cpu_ctrl_callback(struct notifier_block *nfb,
 		} else {
 			pr_debug("voting for CPU%d to be online\n", cpu);
 		}
+		break;
+	case CPU_ONLINE:
+		if (bcl_hotplug_enabled && (bcl_hotplug_request & BIT(cpu))) {
+			pr_debug("CPU%d online. reevaluate hotplug\n", cpu);
+			schedule_work(&bcl_hotplug_work);
+		}
+		break;
+	default:
+		break;
 	}
 
 	return NOTIFY_OK;
@@ -474,7 +484,8 @@ static void bcl_iavail_work(struct work_struct *work)
 	if (gbcl->bcl_mode == BCL_DEVICE_ENABLED) {
 		bcl_calculate_iavail_trigger();
 		/* restart the delay work for caculating imax */
-		schedule_delayed_work(&bcl->bcl_iavail_work,
+		queue_delayed_work(system_power_efficient_wq,
+			&bcl->bcl_iavail_work,
 			msecs_to_jiffies(bcl->bcl_poll_interval_msec));
 	}
 }
@@ -846,7 +857,8 @@ static void bcl_mode_set(enum bcl_device_mode mode)
 	switch (gbcl->bcl_monitor_type) {
 	case BCL_IAVAIL_MONITOR_TYPE:
 		if (mode == BCL_DEVICE_ENABLED)
-			schedule_delayed_work(&gbcl->bcl_iavail_work, 0);
+			queue_delayed_work(system_power_efficient_wq,
+				&gbcl->bcl_iavail_work, 0);
 		else
 			cancel_delayed_work_sync(&(gbcl->bcl_iavail_work));
 		break;
