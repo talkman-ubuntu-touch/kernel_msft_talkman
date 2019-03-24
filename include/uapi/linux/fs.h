@@ -189,6 +189,7 @@ struct inodes_stat_t {
 #define FS_ENCRYPTION_MODE_AES_128_CTS		6
 
 
+
 struct fscrypt_policy {
 	__u8 version;
 	__u8 contents_encryption_mode;
