@@ -83,9 +83,12 @@ int cap_capable(const struct cred *cred, struct user_namespace *targ_ns,
 	struct user_namespace *ns = targ_ns;
 
 #ifdef CONFIG_SECURITY_ANDROID_GID_CAPABILITIES
-	if (cap == CAP_NET_RAW && in_egroup_p(AID_NET_RAW))
+	kgid_t anr= (kgid_t){AID_NET_RAW};
+	kgid_t ana= (kgid_t){AID_NET_ADMIN};
+	
+	if (cap == CAP_NET_RAW && in_egroup_p(anr))
 		return 0;
-	if (cap == CAP_NET_ADMIN && in_egroup_p(AID_NET_ADMIN))
+	if (cap == CAP_NET_ADMIN && in_egroup_p(ana))
 		return 0;
 #endif
 

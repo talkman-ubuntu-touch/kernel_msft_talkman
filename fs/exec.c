@@ -998,7 +998,9 @@ static int de_thread(struct task_struct *tsk)
 		 */
 		spin_lock_irq(lock);
 		delete_from_adj_tree(leader);
+#ifdef CONFIG_ANDROID_LMK_ADJ_RBTREE		
 		add_2_adj_tree(tsk);
+#endif
 		spin_unlock_irq(lock);
 		leader->exit_signal = -1;
 

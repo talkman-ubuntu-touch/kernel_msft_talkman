@@ -231,7 +231,9 @@ q2_get_counter(const struct xt_quota_mtinfo2 *q)
 		spin_unlock_bh(&counter_list_lock);
 		goto out;
 	}
-	proc_set_user(p, quota_list_uid, quota_list_gid);
+	kuid_t qlu = (kuid_t){quota_list_uid};
+	kgid_t qlg = (kgid_t){quota_list_gid};
+	proc_set_user(p, qlu, qlg);
 	return e;
 
  out:

@@ -5507,7 +5507,7 @@ int q6asm_dts_eagle_set(struct audio_client *ac, int param_id, uint32_t size,
 	if (po) {
 		struct list_head *ptr, *next;
 		struct asm_buffer_node *node;
-		pr_debug("DTS_EAGLE_ASM - %s: using out of band memory (virtual %pK, physical %pK)\n",
+		pr_debug("DTS_EAGLE_ASM - %s: using out of band memory (virtual %pK, physical %ldK)\n",
 			__func__, po->kvaddr, (long)po->paddr);
 		ad->param.data_payload_addr_lsw = lower_32_bits(po->paddr);
 		ad->param.data_payload_addr_msw = upper_32_bits(po->paddr);
@@ -5618,7 +5618,7 @@ int q6asm_dts_eagle_get(struct audio_client *ac, int param_id, uint32_t size,
 	if (po) {
 		struct list_head *ptr, *next;
 		struct asm_buffer_node *node;
-		pr_debug("DTS_EAGLE_ASM - %s: using out of band memory (virtual %pK, physical %pK)\n",
+		pr_debug("DTS_EAGLE_ASM - %s: using out of band memory (virtual %pK, physical %ldK)\n",
 			 __func__, po->kvaddr, (long)po->paddr);
 		ad->param.data_payload_addr_lsw = lower_32_bits(po->paddr);
 		ad->param.data_payload_addr_msw = upper_32_bits(po->paddr);
