@@ -68,7 +68,8 @@
 
 static inline int current_has_network(void)
 {
-	return in_egroup_p(AID_INET) || capable(CAP_NET_RAW);
+	kgid_t ai= (kgid_t){AID_INET};
+	return in_egroup_p(ai) || capable(CAP_NET_RAW);
 }
 #else
 static inline int current_has_network(void)

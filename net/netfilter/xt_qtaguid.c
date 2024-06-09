@@ -145,22 +145,22 @@ static bool can_manipulate_uids(void)
 {
 	/* root pwnd */
 	return in_egroup_p(xt_qtaguid_ctrl_file->gid)
-		|| unlikely(!current_fsuid()) || unlikely(!proc_ctrl_write_limited)
-		|| unlikely(current_fsuid() == xt_qtaguid_ctrl_file->uid);
+		|| unlikely(!current_fsuid().val) || unlikely(!proc_ctrl_write_limited)
+		|| unlikely(uid_eq(current_fsuid(),xt_qtaguid_ctrl_file->uid));
 }
 
 static bool can_impersonate_uid(uid_t uid)
 {
-	return uid == current_fsuid() || can_manipulate_uids();
+	return uid == current_fsuid().val || can_manipulate_uids();
 }
 
 static bool can_read_other_uid_stats(uid_t uid)
 {
 	/* root pwnd */
 	return in_egroup_p(xt_qtaguid_stats_file->gid)
-		|| unlikely(!current_fsuid()) || uid == current_fsuid()
+		|| unlikely(!current_fsuid().val) || uid == current_fsuid().val
 		|| unlikely(!proc_stats_readall_limited)
-		|| unlikely(current_fsuid() == xt_qtaguid_ctrl_file->uid);
+		|| unlikely(uid_eq(current_fsuid(), xt_qtaguid_ctrl_file->uid));
 }
 
 static inline void dc_add_byte_packets(struct data_counters *counters, int set,
@@ -540,7 +540,7 @@ static void put_utd_entry(struct uid_tag_data *utd_entry)
 			 "erase utd_entry=%p uid=%u "
 			 "by pid=%u tgid=%u uid=%u\n", __func__,
 			 utd_entry, utd_entry->uid,
-			 current->pid, current->tgid, current_fsuid());
+			 current->pid, current->tgid, current_fsuid().val);
 		BUG_ON(utd_entry->num_active_tags);
 		rb_erase(&utd_entry->node, &uid_tag_data_tree);
 		kfree(utd_entry);
@@ -1730,9 +1730,9 @@ static bool qtaguid_mt(const struct sk_buff *skb, struct xt_action_param *par)
 		res = false;
 		goto put_sock_ret_res;
 	}
-	sock_uid = sk->sk_uid;
+	sock_uid = sk->sk_uid.val;
 	if (do_tag_stat)
-		account_for_uid(skb, sk, from_kuid(&init_user_ns, sock_uid),
+		account_for_uid(skb, sk, from_kuid(&init_user_ns, (kuid_t){sock_uid}),
 				par);
 
 	/*
@@ -2002,7 +2002,7 @@ static int ctrl_cmd_delete(const char *input)
 		goto err;
 	}
 	if (argc < 3) {
-		uid = current_fsuid();
+		uid = current_fsuid().val;
 	} else if (!can_impersonate_uid(uid)) {
 		pr_info("qtaguid: ctrl_delete(%s): "
 			"insufficient priv from pid=%u tgid=%u uid=%u\n",
@@ -2242,7 +2242,7 @@ static int ctrl_cmd_tag(const char *input)
 		 in_group_p(xt_qtaguid_ctrl_file->gid),
 		 in_egroup_p(xt_qtaguid_ctrl_file->gid));
 	if (argc < 4) {
-		uid = current_fsuid();
+		uid = current_fsuid().val;
 	} else if (!can_impersonate_uid(uid)) {
 		pr_info("qtaguid: ctrl_tag(%s): "
 			"insufficient priv from pid=%u tgid=%u uid=%u\n",
@@ -2746,7 +2746,7 @@ static int qtudev_open(struct inode *inode, struct file *file)
 	spin_lock_bh(&uid_tag_data_tree_lock);
 
 	/* Look for existing uid data, or alloc one. */
-	utd_entry = get_uid_data(current_fsuid(), &utd_entry_found);
+	utd_entry = get_uid_data(current_fsuid().val, &utd_entry_found);
 	if (IS_ERR_OR_NULL(utd_entry)) {
 		res = PTR_ERR(utd_entry);
 		goto err_unlock;
