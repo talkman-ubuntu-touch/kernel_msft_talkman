@@ -62,6 +62,9 @@
 #define QSERDES_COM_PLLLOCK_CMP_EN	0x09C
 #define QSERDES_COM_BGTC		0x0A0
 #define QSERDES_COM_DEC_START1	0x0AC
+#define QSERDES_COM_SSC_EN_CENTER 0x0B4
+#define QSERDES_COM_SSC_ADJ_PER1 0x0B8
+#define QSERDES_COM_SSC_PER1 0x0C0
 #define QSERDES_COM_RES_CODE_START_SEG1	0x0E0
 #define QSERDES_COM_RES_CODE_CAL_CSR	0x0E8
 #define QSERDES_COM_RES_TRIM_CONTROL	0x0F0
@@ -163,6 +166,9 @@
 #define PCIE_PHY_DEBUG_BUS_2_STATUS	0x748
 #define PCIE_PHY_DEBUG_BUS_3_STATUS	0x74C
 
+#define QPHY_FLL_CNTRL1 0xc4
+#define QPHY_FLL_CNTRL2 0xc8
+#define QPHY_FLL_CNT_VAL_L 0xcc
 
 #define PCIE20_PARF_SYS_CTRL	     0x00
 #define PCIE20_PARF_PM_STTS		0x24
@@ -1028,6 +1034,14 @@ static void pcie_phy_init(struct msm_pcie_dev_t *dev)
 	msm_pcie_write_reg(dev->phy, QSERDES_RX_SIGDET_ENABLES, 0x40);
 	msm_pcie_write_reg(dev->phy, QSERDES_RX_SIGDET_CNTRL, 0xB0);
 	msm_pcie_write_reg(dev->phy, QSERDES_RX_SIGDET_DEGLITCH_CNTRL, 0x06);
+
+	msm_pcie_write_reg(dev->phy, QSERDES_COM_SSC_EN_CENTER, 0x1);
+	msm_pcie_write_reg(dev->phy, QSERDES_COM_SSC_ADJ_PER1, 0x2);
+	msm_pcie_write_reg(dev->phy, QSERDES_COM_SSC_PER1, 0x31);
+	msm_pcie_write_reg(dev->phy, QPHY_FLL_CNTRL1, 0x1);
+	msm_pcie_write_reg(dev->phy, QPHY_FLL_CNTRL2, 0x19);
+	msm_pcie_write_reg(dev->phy, QPHY_FLL_CNT_VAL_L, 0x19);
+
 	msm_pcie_write_reg(dev->phy, QSERDES_COM_PLL_RXTXEPCLK_EN, 0x10);
 	msm_pcie_write_reg(dev->phy, PCIE_PHY_ENDPOINT_REFCLK_DRIVE, 0x10);
 	msm_pcie_write_reg(dev->phy, PCIE_PHY_POWER_STATE_CONFIG1, 0xA3);
